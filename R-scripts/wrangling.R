@@ -1,6 +1,6 @@
 source("R-scripts/librerias.R")
 
-base_original <- read.csv("data-raw/HURDAT2 May 29, 2021.txt", header = F)
+base_original <- read.csv("data/HURDAT2 May 29, 2021.txt", header = F)
 
 base_descripcion <- base_original %>%
         filter(is.na(V7)) %>% select(V1,V2,V3) %>% mutate(V3 = as.numeric(V3)) %>%
@@ -33,4 +33,4 @@ base_datos <- base_datos %>%
                long = ifelse(mer == "E", 1,-1) * as.numeric(
                        substr(gsub(" ","",longor), 1,nchar(gsub(" ","",longor))-1)))
 
-write_rds(base_datos, "www/data/hurdat2.rds")
+write_rds(base_datos, "data/hurdat2.rds")
