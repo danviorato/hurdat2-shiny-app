@@ -33,4 +33,4 @@ base_datos <- base_datos %>%
                long = ifelse(mer == "E", 1,-1) * as.numeric(
                        substr(gsub(" ","",longor), 1,nchar(gsub(" ","",longor))-1)))
 
-readr::write_rds(base_datos, "data/hurdat2.rds")
+write_rds(base_datos, "www/data/hurdat2.rds")
