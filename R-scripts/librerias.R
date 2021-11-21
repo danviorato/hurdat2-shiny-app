@@ -6,7 +6,7 @@ check.packages <- function(pkg){
 }
 
 # Usage example
-packages<-c("tidyverse", "scales", "shiny")
+packages<-c("tidyverse", "scales", "shiny", "leaflet", "shinyWidgets")
 check.packages(packages)
 
 rm(list = c("check.packages","packages"))
