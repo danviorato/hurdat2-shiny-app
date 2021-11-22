@@ -31,6 +31,7 @@ base_datos <- base_datos %>%
                lat = ifelse(hem == "N", 1,-1) * as.numeric(
                        substr(gsub(" ","",lator), 1,nchar(gsub(" ","",lator))-1)),
                long = ifelse(mer == "E", 1,-1) * as.numeric(
-                       substr(gsub(" ","",longor), 1,nchar(gsub(" ","",longor))-1)))
+                       substr(gsub(" ","",longor), 1,nchar(gsub(" ","",longor))-1)),
+               year = as.numeric(substr(as.character(fecha),1,4)))
 
 write_rds(base_datos, "data/hurdat2.rds")

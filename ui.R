@@ -10,18 +10,20 @@ shinyUI(fluidPage(
     # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
-            dateRangeInput(
-                "fecha_total", "Periodo", 
-                start = min(hurdat$fecha), end = max(hurdat$fecha),
-                min = min(hurdat$fecha), max = max(hurdat$fecha),
-                separator = " - "
-            ),
-            checkboxGroupInput(
+            uiOutput("periodoUI"),
+            pickerInput(
                 "estatus_total", label = "Estatus", 
-                choices = unique(hurdat$estatus), inline = T,
-                selected = unique(hurdat$estatus)
-            )
-        ),
+                choices = unique(hurdat$estatus), 
+                selected = unique(hurdat$estatus),
+                width = "100%",
+                options = list(`actions-box` = TRUE,
+                               `deselect-all-text` = "Quitar selección",
+                               `select-all-text` = "Seleccionar todo",
+                               `none-selected-text` = "Ninguno"), 
+                multiple = T
+            ),
+            textOutput("borrar")
+        ,width = 4),
 
         # Show a plot of the generated distribution
         mainPanel(
