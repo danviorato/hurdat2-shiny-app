@@ -1,6 +1,6 @@
-source("librerias.R")
+source("R-scripts/librerias.R")
 
-hurdat <- read_rds("../data/hurdat2.rds")
+hurdat <- read_rds("data/hurdat2.rds")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {

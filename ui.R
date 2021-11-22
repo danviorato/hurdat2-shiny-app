@@ -1,4 +1,4 @@
-source("librerias.R")
+source("R-scripts/librerias.R")
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
