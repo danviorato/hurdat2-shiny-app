@@ -1,32 +1,32 @@
 source("R-scripts/librerias.R")
 
+hurdat <- read_rds("data/hurdat2.rds")
+
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
-    fluidRow(
-        column(width = 6,
-               "Prueba"
-        )
-    )
-)
-)
-'
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    titlePanel("Base de datos de huracanes: HURDAT2"),
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
+            dateRangeInput(
+                "fecha_total", "Periodo", 
+                start = min(hurdat$fecha), end = max(hurdat$fecha),
+                min = min(hurdat$fecha), max = max(hurdat$fecha),
+                separator = " - "
+            ),
+            checkboxGroupInput(
+                "estatus_total", label = "Estatus", 
+                choices = unique(hurdat$estatus), inline = T,
+                selected = unique(hurdat$estatus)
+            )
         ),
 
         # Show a plot of the generated distribution
         mainPanel(
-            plotOutput("distPlot")
+            plotOutput("distTotal")
+            )
         )
     )
-    '
-
+    )
