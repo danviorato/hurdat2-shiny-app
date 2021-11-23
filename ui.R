@@ -1,7 +1,5 @@
 source("R-scripts/librerias.R")
 
-hurdat <- read_rds("data/hurdat2.rds")
-
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
     # Application title
@@ -11,17 +9,7 @@ shinyUI(fluidPage(
     sidebarLayout(
         sidebarPanel(
             uiOutput("periodoUI"),
-            pickerInput(
-                "estatus_total", label = "Estatus", 
-                choices = unique(hurdat$estatus), 
-                selected = unique(hurdat$estatus),
-                width = "100%",
-                options = list(`actions-box` = TRUE,
-                               `deselect-all-text` = "Quitar selección",
-                               `select-all-text` = "Seleccionar todo",
-                               `none-selected-text` = "Ninguno"), 
-                multiple = T
-            ),
+            uiOutput("statusUI"),
             textOutput("borrar")
         ,width = 4),
 
@@ -29,6 +17,14 @@ shinyUI(fluidPage(
         mainPanel(
             plotOutput("distTotal")
             )
+        ),
+    sidebarLayout(
+        sidebarPanel(
+            textAreaInput("borrar","borrar2")
+        ),
+        mainPanel(
+            plotOutput("compvipe")
         )
+    )
     )
     )
