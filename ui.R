@@ -20,11 +20,14 @@ shinyUI(fluidPage(
         ),
     sidebarLayout(
         sidebarPanel(
-            textAreaInput("borrar","borrar2")
+            uiOutput("statusvientoUI")
         ),
         mainPanel(
             plotOutput("compvipe")
         )
+    ),
+    fluidRow(
+        verbatimTextOutput("prueba")
     )
     )
     )

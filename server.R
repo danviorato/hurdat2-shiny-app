@@ -64,23 +64,48 @@ shinyServer(function(input, output) {
             scale_fill_viridis(discrete = T)+
             theme_minimal()
     })
+    
+    output$statusvientoUI <- renderUI({
+        sliderTextInput(
+            "statusvientoSer", label = "Status",
+            choices = c("All", estatusc), selected = "All" 
+        )
+    })
 
+    output$prueba <- renderPrint({ "a" })
+
+    
     base_point <- reactive({
-        hurdat %>% 
+        norder <- if(input$statusvientoSer == "All") { 
+            estatusc} else { 
+                c(input$statusvientoSer,
+                  estatusc[-grep(input$statusvientoSer,
+                                 estatusc)])}
+        
+        a <- hurdat %>% 
             filter(!is.na(min_presion))%>%
             group_by(clave) %>%
             summarise(max_nudos_viento = mean(max_nudos_viento),
                       min_presion = mean(min_presion),
-                      estatus = names(which.max(table(estatus))))
+                      estatus = factor(names(which.max(table(estatus))),
+                                       levels = norder),
+                      balpha = ifelse(input$statusvientoSer == "All", T,
+                                      ifelse(estatus == input$statusvientoSer,
+                                             T,F)), .groups = "drop")
+        a <- a[unlist(sapply(1:9, function(x) which(prueba$estatus==rev(estatusc)[x]))),]
+        return(a)
     })
     
     output$compvipe <- renderPlot(
-        g <- base_point() %>%
+        base_point() %>%
             ggplot(aes(x = max_nudos_viento, y = min_presion, 
-                       color = estatus))+
+                       color = estatus, alpha = balpha))+
             geom_point()+
             theme_minimal()+
-            scale_color_viridis(discrete = T)
+            scale_color_viridis(discrete = T) +
+            scale_alpha_ordinal(range = c(0.5,1))
+        #https://stackoverflow.com/questions/7556320/reorder-legend-without-changing-order-of-points-on-plot
     )
+    
 })
 
