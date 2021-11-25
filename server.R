@@ -43,23 +43,18 @@ shinyServer(function(input, output) {
         return(i)
     })
     
-    base <- reactive({
-
-        a <- hurdat %>%
-            filter(
-                year >= min(format(input$periodoSer)),
-                year <= max(format(input$periodoSer)),
-                estatus %in% estatusc[match(input$statusSer, estatusn)]
-            )
-        return(a)
-    })
     
     output$borrar <- renderText({
         format(input$periodoSer)
     })
 
     output$distTotal <- renderPlot({
-        base() %>%
+        hurdat %>%
+            filter(
+                year >= min(format(input$periodoSer)),
+                year <= max(format(input$periodoSer)),
+                estatus %in% estatusc[match(input$statusSer, estatusn)]
+            ) %>%
             ggplot(aes(year, fill = estatus)) +
             geom_histogram(binwidth = 1) +
             scale_fill_viridis(discrete = T)+
@@ -113,8 +108,8 @@ shinyServer(function(input, output) {
             scale_alpha_ordinal(range = if(input$statusvientoSer == "All"){
                 c(0.55, 0.55)} else{
                     c(0.15, 1)})+
-            scale_size_ordinal(range = c(2,3))+
+            scale_size_ordinal(range = c(2,2.5))+
             scale_color_manual(values=viridis(9),breaks = estatusc)
     )
 })
-
+#https://stackoverflow.com/questions/63414423/how-to-connect-daterangeinput-and-sliderinput-in-r-shiny

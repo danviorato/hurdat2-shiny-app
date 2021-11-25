@@ -8,9 +8,13 @@ shinyUI(fluidPage(
     # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
-            uiOutput("periodoUI"),
-            uiOutput("statusUI"),
-            textOutput("borrar")
+            materialSwitch("switchUI", 
+                           value = T),
+            conditionalPanel(#Investigar conditional panel
+                condition = "input.materialSwitch",
+                uiOutput("periodoUI")
+            ),
+            uiOutput("statusUI")
         ,width = 4),
 
         # Show a plot of the generated distribution
@@ -27,8 +31,8 @@ shinyUI(fluidPage(
         )
     ),
     fluidRow(
-        verbatimTextOutput("prueba"),
-        tableOutput("prueba2")
+#        verbatimTextOutput("prueba"),
+#        tableOutput("prueba2")
     )
     )
     )
