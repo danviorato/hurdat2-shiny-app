@@ -27,7 +27,8 @@ shinyUI(fluidPage(
         )
     ),
     fluidRow(
-        verbatimTextOutput("prueba")
+        verbatimTextOutput("prueba"),
+        tableOutput("prueba2")
     )
     )
     )

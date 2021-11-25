@@ -1,5 +1,6 @@
 source("R-scripts/librerias.R")
 
+
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
     
@@ -72,16 +73,18 @@ shinyServer(function(input, output) {
         )
     })
 
-    output$prueba <- renderPrint({ "a" })
+    output$prueba <- renderPrint({ "" })
 
     
     base_point <- reactive({
-        norder <- if(input$statusvientoSer == "All") { 
-            estatusc} else { 
-                c(input$statusvientoSer,
-                  estatusc[-grep(input$statusvientoSer,
-                                 estatusc)])}
-        
+        (
+            if(input$statusvientoSer !="All"){
+                norder <- c(input$statusvientoSer, estatusc[-grep(input$statusvientoSer, estatusc)])
+                rang <- 9:1} else{
+                    norder <- estatusc
+                    rang <- 1:9}
+            )
+             
         a <- hurdat %>% 
             filter(!is.na(min_presion))%>%
             group_by(clave) %>%
@@ -91,21 +94,27 @@ shinyServer(function(input, output) {
                                        levels = norder),
                       balpha = ifelse(input$statusvientoSer == "All", T,
                                       ifelse(estatus == input$statusvientoSer,
-                                             T,F)), .groups = "drop")
-        a <- a[unlist(sapply(1:9, function(x) which(prueba$estatus==rev(estatusc)[x]))),]
+                                             T,F)), .groups = "drop") 
+        a <- a[unlist(sapply(rang, function(x) which(a$estatus == norder[x]))),]
         return(a)
+    })
+    
+    output$prueba2 <- renderTable({
+        base_point()
     })
     
     output$compvipe <- renderPlot(
         base_point() %>%
             ggplot(aes(x = max_nudos_viento, y = min_presion, 
-                       color = estatus, alpha = balpha))+
-            geom_point()+
+                       color = estatus, alpha = balpha, 
+                       size = balpha))+
+            geom_point(shape = 16) +
             theme_minimal()+
-            scale_color_viridis(discrete = T) +
-            scale_alpha_ordinal(range = c(0.5,1))
-        #https://stackoverflow.com/questions/7556320/reorder-legend-without-changing-order-of-points-on-plot
+            scale_alpha_ordinal(range = if(input$statusvientoSer == "All"){
+                c(0.55, 0.55)} else{
+                    c(0.15, 1)})+
+            scale_size_ordinal(range = c(2,3))+
+            scale_color_manual(values=viridis(9),breaks = estatusc)
     )
-    
 })
 
