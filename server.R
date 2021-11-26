@@ -1,33 +1,48 @@
-source("R-scripts/librerias.R")
+source("R-scripts/load-data.R")
 
 #Pat: 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
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+
     
-    estatusc <- c("HU","TS","TD","EX","SS","SD","LO","WV","DB")
-    estatusn <- paste(estatusc, "-", c("Tropical cyclone of hurricane intensity", 
-                                       "Tropical cyclone of tropical storm intensity",
-                                       "Tropical cyclone of tropical depression intensity",
-                                       "Extratropical cyclone",
-                                       "Subtropical cyclone of subtropical storm intensity",
-                                       "Subtropical cyclone of subtropical depression intensity",
-                                       "A low", "Tropical Wave", "Disturbance"))
-    
-    
-    hurdat <- read_rds("data/hurdat2.rds") %>%
-        mutate(estatus = factor(estatus, 
-                                levels = estatusc))
-    
+    #First Graph filters
     output$periodoUI <-renderUI({
         sliderInput(
             "periodoSer", "Periodo",
             min = min(hurdat$fecha), 
             max = max(hurdat$fecha),
             value = c(min(hurdat$fecha), 
-                      max(hurdat$fecha))
+                      max(hurdat$fecha)),
+            timeFormat = "%d-%m-%Y"
         )
     })
+    
+    output$fechaUI <-renderUI({
+        dateRangeInput(
+            inputId = "fechaSer", 
+            label = "Periodo",
+            start = min(hurdat$fecha),
+            end = max(hurdat$fecha),
+            min = min(hurdat$fecha), 
+            max = max(hurdat$fecha),
+            format = "dd-mm-yyyy",
+            separator = " - "
+        )
+    })
+    
+    observeEvent(input$switchUI,{
+        updateDateRangeInput(inputId = "fechaSer",
+                             start = input$periodoSer[[1]],
+                             end = input$periodoSer[[2]])
+    })
+    
+    observeEvent(input$fechaSer, {
+            updateSliderInput(inputId = "periodoSer",
+                              value = c(input$fechaSer[[1]], 
+                                        input$fechaSer[[2]]),
+                              timeFormat = "%d-%m-%Y")
+        })
     
     output$statusUI <- renderUI({
         i <- pickerInput(
@@ -43,13 +58,8 @@ shinyServer(function(input, output) {
         )
         return(i)
     })
-    
-    
-    output$borrar <- renderText({
-        format(input$periodoSer)
-    })
 
-    output$distTotal <- renderPlot({
+    output$distTotal <- renderPlot({ #Frequency histogram
         hurdat %>%
             filter(
                 year >= min(format(input$periodoSer)),
@@ -62,16 +72,7 @@ shinyServer(function(input, output) {
             theme_minimal()
     })
     
-    output$statusvientoUI <- renderUI({
-        sliderTextInput(
-            "statusvientoSer", label = "Status",
-            choices = c("All", estatusc), selected = "All" 
-        )
-    })
-
-    output$prueba <- renderPrint({ "" })
-
-    
+    #Second graph filtered base
     base_point <- reactive({
         (
             if(input$statusvientoSer !="All"){
@@ -95,11 +96,7 @@ shinyServer(function(input, output) {
         return(a)
     })
     
-    output$prueba2 <- renderTable({
-        base_point()
-    })
-    
-    output$compvipe <- renderPlot(
+    output$compvipe <- renderPlot( #Point graph
         base_point() %>%
             ggplot(aes(x = max_nudos_viento, y = min_presion, 
                        color = estatus, alpha = balpha, 

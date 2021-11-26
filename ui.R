@@ -1,4 +1,4 @@
-source("R-scripts/librerias.R")
+source("R-scripts/load-data.R")
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
@@ -11,8 +11,12 @@ shinyUI(fluidPage(
             materialSwitch("switchUI", 
                            value = T),
             conditionalPanel(#Investigar conditional panel
-                condition = "input.materialSwitch",
+                condition = "input.switchUI",
                 uiOutput("periodoUI")
+            ),
+            conditionalPanel(
+                condition = "!input.switchUI",
+                uiOutput("fechaUI")
             ),
             uiOutput("statusUI")
         ,width = 4),
@@ -24,7 +28,10 @@ shinyUI(fluidPage(
         ),
     sidebarLayout(
         sidebarPanel(
-            uiOutput("statusvientoUI")
+            sliderTextInput(
+                "statusvientoSer", label = "Status",
+                choices = c("All", estatusc), selected = "All" 
+            )
         ),
         mainPanel(
             plotOutput("compvipe")
