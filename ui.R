@@ -30,11 +30,21 @@ shinyUI(
         ),
         sidebarLayout(
             sidebarPanel(
-                sliderTextInput(
-                    inputId = "statusvientoSer", 
-                    label = "Status",
-                    choices = c("All", estatusc), 
-                    selected = "All" 
+                sliderInput(
+                    inputId = "alphaSer",
+                    label = "Opacidad",
+                    min = 0,
+                    max= 1,
+                    value = 1
+                ),
+                conditionalPanel(
+                    condition = "input.alphaSer != 1",
+                    sliderTextInput(
+                        inputId = "statusvientoSer", 
+                        label = "Status",
+                        choices = estatusc, 
+                        selected = "HU" 
+                    )
                 )
             ),
             mainPanel(

@@ -4,7 +4,7 @@ source("R-scripts/load-data.R")
 
 # Define server logic required to draw a histogram
 shinyServer(
-    function(input, output) {
+    function(input, output, session) {
         #First Graph filters
         output$periodoUI <-renderUI({
             sliderInput(
@@ -67,6 +67,10 @@ shinyServer(
         
         output$distTotal <- renderPlot({ #Frequency histogram
             hurdat %>%
+                group_by(clave) %>%
+                summarise(year = min(year), 
+                          estatus = factor(names(which.max(table(estatus))),
+                                           levels = estatusc)) %>%
                 filter(
                     year >= min(format(input$periodoSer)),
                     year <= max(format(input$periodoSer)),
@@ -78,14 +82,20 @@ shinyServer(
                 theme_minimal()
         })
         
+        observeEvent(
+            "input.alphaSer==1",{
+                updateSliderTextInput(
+                    session = session,
+                    inputId = "statusvientoSer",
+                    selected = "HU")
+            })
+        
         #Second graph filtered base
         base_point <- reactive({
-            if(input$statusvientoSer !="All"){
-                norder <- c(input$statusvientoSer, 
-                            estatusc[-grep(input$statusvientoSer, estatusc)])
-                rang <- 9:1} else{
-                    norder <- estatusc
-                    rang <- 1:9}
+            if(input$alphaSer != 1){
+                norder <- c(estatusc[-grep(input$statusvientoSer, estatusc)],
+                            input$statusvientoSer)} else{
+                    norder <- estatusc}
             
             a <- hurdat %>% 
                 filter(!is.na(min_presion))%>%
@@ -95,10 +105,10 @@ shinyServer(
                     min_presion = mean(min_presion),
                     estatus = factor(names(which.max(table(estatus))),
                                      levels = norder),
-                    balpha = ifelse(input$statusvientoSer == "All", T,
+                    balpha = ifelse(input$alphaSer == 1, T,
                                     ifelse(estatus == input$statusvientoSer,
                                            T,F)), .groups = "drop")
-            a <- a[unlist(sapply(rang, 
+            a <- a[unlist(sapply(1:9, 
                                  function(x) which(a$estatus == norder[x]))),]
             return(a)
         })
@@ -113,7 +123,7 @@ shinyServer(
                 scale_alpha_ordinal(
                     range = if(input$statusvientoSer == "All"){
                         c(0.55, 0.55)} else{
-                        c(0.15, 1)})+
+                        c(0.55 * input$alphaSer, 1)})+
                 scale_size_ordinal(range = c(2,2.5))+
                 scale_color_manual(values=viridis(9),breaks = estatusc)
         )

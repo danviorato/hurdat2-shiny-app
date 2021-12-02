@@ -6,7 +6,9 @@ estatusn <- paste(estatusc, "-", c("Tropical cyclone of hurricane intensity",
                                    "Extratropical cyclone",
                                    "Subtropical cyclone of subtropical storm intensity",
                                    "Subtropical cyclone of subtropical depression intensity",
-                                   "A low", "Tropical Wave", "Disturbance"))
+                                   "A low", 
+                                   "Tropical Wave", 
+                                   "Disturbance"))
 
 
 hurdat <- read_rds("data/hurdat2.rds") %>%
