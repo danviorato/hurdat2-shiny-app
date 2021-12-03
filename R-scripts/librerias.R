@@ -8,7 +8,7 @@ check.packages <- function(pkg){
 # Usage example
 packages<-c("tidyverse", "scales", "shiny", "leaflet", 
             "shinyWidgets", "readr","shinyjs","plotly",
-            "viridis")
+            "viridis","magrittr")
 check.packages(packages)
 
 rm(list = c("check.packages","packages"))

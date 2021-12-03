@@ -1,6 +1,6 @@
 source("R-scripts/load-data.R")
 
-#Pat: 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
+#Pat: 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
 
 # Define server logic required to draw a histogram
 shinyServer(
@@ -81,15 +81,7 @@ shinyServer(
                 scale_fill_viridis(discrete = T)+
                 theme_minimal()
         })
-        
-        observeEvent(
-            "input.alphaSer==1",{
-                updateSliderTextInput(
-                    session = session,
-                    inputId = "statusvientoSer",
-                    selected = "HU")
-            })
-        
+
         #Second graph filtered base
         base_point <- reactive({
             if(input$alphaSer != 1){
@@ -127,5 +119,42 @@ shinyServer(
                 scale_size_ordinal(range = c(2,2.5))+
                 scale_color_manual(values=viridis(9),breaks = estatusc)
         )
+        
+        base_mapa <- reactive({
+            hurdat %>%
+                filter(fecha == input$fecha_mapa)
+        })
+        
+        output$mapSer <- renderLeaflet({
+
+            map_filtered <- base_mapa() %>%
+                mutate(label=paste(sep = "<br/>",
+                                   nombre,
+                                   paste0("Estatus: ", estatus)
+                                   ))
+
+            pal <- colorNumeric("viridis", hurdat$max_nudos_viento, reverse = T)
+            
+            #pos <- ifelse(!is.nan(mean(map_filtered$long)),
+            #              c(mean(map_filtered$long),mean(map_filtered$lat)),
+            #              c(pos[1],pos[2]))
+            
+            map <- leaflet() %>%
+                addProviderTiles(providers$CartoDB.Positron) %>%
+                addCircleMarkers(lng = map_filtered$long, lat = map_filtered$lat,
+                                 radius = 20,
+                                 popup = map_filtered$label,
+                                 #weight = 20,
+                                 color = pal(map_filtered$max_nudos_viento), 
+                                 opacity = 1,
+                                 fillOpacity = 0.5
+                ) %>%
+                addLegend("topright", pal = pal, values = hurdat$max_nudos_viento,
+                          title = "Velocidad en nudos"#, opacity = .5
+                ) %>%
+                setView(lng = -10, lat = 30, zoom = 3) %>%
+                fitBounds(lng1 = min(hurdat$long), lat1 = min(hurdat$lat),
+                          lng2 = max(hurdat$long), lat2 = max(hurdat$lat))
+        })
     }
 )

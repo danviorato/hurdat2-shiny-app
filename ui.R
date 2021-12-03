@@ -51,9 +51,26 @@ shinyUI(
                 plotOutput("compvipe")
             )
         ),
-        fluidRow(
-            #        verbatimTextOutput("prueba"),
-            #        tableOutput("prueba2")
+        sidebarLayout(
+            sidebarPanel(
+                #        verbatimTextOutput("prueba"),
+                #        tableOutput("prueba2")
+                width = 12,
+                sliderTextInput(
+                    inputId = "fecha_mapa",
+                    label = "Fecha",
+                    choices = unique(hurdat$fecha),
+#                    min = min(hurdat$fecha),
+#                    max = max(hurdat$fecha),
+                    selected = min(hurdat$fecha),
+#                    timeFormat = "%d-%m-%Y",
+                    animate = T
+                )
+            ),
+            mainPanel(
+                leafletOutput(outputId = "mapSer", height = "45rem"),
+                width = 12
+            )
         )
     )
 )
