@@ -135,21 +135,30 @@ shinyServer(
 
             pal <- colorNumeric("viridis", hurdat$max_nudos_viento, reverse = T)
             
+            palfill <- list(clave = unique(map_filtered$clave), 
+                            nombre = unique(map_filtered$nombre),
+                            col = brewer_pal("div",1)(length(unique(map_filtered$clave))))
+            
             #pos <- ifelse(!is.nan(mean(map_filtered$long)),
             #              c(mean(map_filtered$long),mean(map_filtered$lat)),
             #              c(pos[1],pos[2]))
             
             map <- leaflet() %>%
                 addProviderTiles(providers$CartoDB.Positron) %>%
-                addCircleMarkers(lng = map_filtered$long, lat = map_filtered$lat,
-                                 radius = 20,
+                addCircles(lng = map_filtered$long, lat = map_filtered$lat,
+                                 radius = 500000,
                                  popup = map_filtered$label,
                                  #weight = 20,
                                  color = pal(map_filtered$max_nudos_viento), 
                                  opacity = 1,
-                                 fillOpacity = 0.5
+                                 fillColor = palfill$col[match(map_filtered$clave,palfill$clave)] ,
+                                 fillOpacity = 1
                 ) %>%
                 addLegend("topright", pal = pal, values = hurdat$max_nudos_viento,
+                          title = "Velocidad en nudos"#, opacity = .5
+                ) %>%
+                addLegend("topright", colors = palfill$col, labels = paste0(palfill$nombre," (",
+                                                                            palfill$clave,")"),
                           title = "Velocidad en nudos"#, opacity = .5
                 ) %>%
                 setView(lng = -10, lat = 30, zoom = 3) %>%
