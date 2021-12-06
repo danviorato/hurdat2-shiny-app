@@ -55,7 +55,7 @@ shinyUI(
             sidebarPanel(
                 #        verbatimTextOutput("prueba"),
                 #        tableOutput("prueba2")
-                width = 12,
+                width = 4,
                 sliderTextInput(
                     inputId = "fecha_mapa",
                     label = "Fecha",
@@ -68,8 +68,8 @@ shinyUI(
                 )
             ),
             mainPanel(
-                leafletOutput(outputId = "mapSer", height = "45rem"),
-                width = 12
+                leafletOutput(outputId = "mapSer", height = "65rem"),
+                width = 8
             )
         )
     )

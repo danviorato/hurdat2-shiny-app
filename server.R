@@ -120,50 +120,46 @@ shinyServer(
                 scale_color_manual(values=viridis(9),breaks = estatusc)
         )
         
+        #leaflet map
         base_mapa <- reactive({
             hurdat %>%
-                filter(fecha == input$fecha_mapa)
+                filter(fecha == input$fecha_mapa)%>%
+                mutate(label=paste(sep = "<br/>",
+                                   nombre,
+                                   paste0("Estatus: ", estatus)
+                ))
         })
         
         output$mapSer <- renderLeaflet({
 
-            map_filtered <- base_mapa() %>%
-                mutate(label=paste(sep = "<br/>",
-                                   nombre,
-                                   paste0("Estatus: ", estatus)
-                                   ))
-
             pal <- colorNumeric("viridis", hurdat$max_nudos_viento, reverse = T)
             
-            palfill <- list(clave = unique(map_filtered$clave), 
-                            nombre = unique(map_filtered$nombre),
-                            col = brewer_pal("div",1)(length(unique(map_filtered$clave))))
-            
-            #pos <- ifelse(!is.nan(mean(map_filtered$long)),
-            #              c(mean(map_filtered$long),mean(map_filtered$lat)),
+            #pos <- ifelse(!is.nan(mean(base_mapa$long)),
+            #              c(mean(base_mapa$long),mean(base_mapa$lat)),
             #              c(pos[1],pos[2]))
             
             map <- leaflet() %>%
                 addProviderTiles(providers$CartoDB.Positron) %>%
-                addCircles(lng = map_filtered$long, lat = map_filtered$lat,
-                                 radius = 500000,
-                                 popup = map_filtered$label,
+                addCircles(lng = base_mapa()$long, lat = base_mapa()$lat,
+                                 radius = base_mapa()$radii * 1852,
+                                 popup = base_mapa()$label,
                                  #weight = 20,
-                                 color = pal(map_filtered$max_nudos_viento), 
-                                 opacity = 1,
-                                 fillColor = palfill$col[match(map_filtered$clave,palfill$clave)] ,
+                                 color = pal(base_mapa()$max_nudos_viento), 
+                                 opacity = 0.8,
+                                 fillColor = base_mapa()$color,
                                  fillOpacity = 1
                 ) %>%
                 addLegend("topright", pal = pal, values = hurdat$max_nudos_viento,
                           title = "Velocidad en nudos"#, opacity = .5
                 ) %>%
-                addLegend("topright", colors = palfill$col, labels = paste0(palfill$nombre," (",
-                                                                            palfill$clave,")"),
-                          title = "Velocidad en nudos"#, opacity = .5
+                addLegend("topright", colors = unique(base_mapa()$color), 
+                          labels = paste0(base_mapa()$nombre[!duplicated(base_mapa()$clave)],
+                                          " (",unique(base_mapa()$clave),")"),
+                          title = "Velocidad en nudos"
                 ) %>%
-                setView(lng = -10, lat = 30, zoom = 3) %>%
-                fitBounds(lng1 = min(hurdat$long), lat1 = min(hurdat$lat),
-                          lng2 = max(hurdat$long), lat2 = max(hurdat$lat))
+                setView(lng = -23.25, lat = 44.1, zoom = 3) #%>%
+#                fitBounds(lng1 = min(hurdat$long), lat1 = min(hurdat$lat),
+#                          lng2 = max(hurdat$long), lat2 = max(hurdat$lat))
         })
     }
 )
