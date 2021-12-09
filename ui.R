@@ -56,16 +56,20 @@ shinyUI(
                 #        verbatimTextOutput("prueba"),
                 #        tableOutput("prueba2")
                 width = 4,
+                selectizeInput(
+                    inputId = "storm_name",
+                    label = "See specific storm(s)",
+                    choices = NULL,
+                    multiple = T
+                ),
                 sliderTextInput(
                     inputId = "fecha_mapa",
                     label = "Fecha",
                     choices = unique(hurdat$fecha),
-#                    min = min(hurdat$fecha),
-#                    max = max(hurdat$fecha),
                     selected = min(hurdat$fecha),
-#                    timeFormat = "%d-%m-%Y",
                     animate = T
-                )
+                ),
+                textOutput("Prueba")
             ),
             mainPanel(
                 leafletOutput(outputId = "mapSer", height = "65rem"),

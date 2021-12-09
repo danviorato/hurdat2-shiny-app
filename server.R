@@ -121,6 +121,28 @@ shinyServer(
         )
         
         #leaflet map
+        updateSelectizeInput(
+            session, "storm_name", choices = stormid, server = T
+        )
+        
+        observeEvent(
+            input$storm_name,{
+                
+                updateSliderTextInput(session,
+                    inputId = "fecha_mapa",
+                    
+                    selected = if(is.null(input$storm_name)){ 
+                        min(hurdat$fecha)}else{
+                            min(filter(hurdat,
+                                          clave %in% unique(hurdat$clave)[match(input$storm_name,stormid)])$fecha)},
+                    choices = if(is.null(input$storm_name)){ 
+                        unique(hurdat$fecha)}else{
+                            unique(filter(hurdat,
+                                          clave %in% unique(hurdat$clave)[match(input$storm_name,stormid)])$fecha)}
+                )
+            }, ignoreNULL = F
+        )
+        
         base_mapa <- reactive({
             hurdat %>%
                 filter(fecha == input$fecha_mapa)%>%
@@ -134,9 +156,8 @@ shinyServer(
 
             pal <- colorNumeric("viridis", hurdat$max_nudos_viento, reverse = T)
             
-            #pos <- ifelse(!is.nan(mean(base_mapa$long)),
-            #              c(mean(base_mapa$long),mean(base_mapa$lat)),
-            #              c(pos[1],pos[2]))
+            pos <- c(mean(filter(hurdat, clave %in% base_mapa()$clave)$long),
+                     mean(filter(hurdat, clave %in% base_mapa()$clave)$lat))
             
             map <- leaflet() %>%
                 addProviderTiles(providers$CartoDB.Positron) %>%
@@ -157,7 +178,7 @@ shinyServer(
                                           " (",unique(base_mapa()$clave),")"),
                           title = "Velocidad en nudos"
                 ) %>%
-                setView(lng = -23.25, lat = 44.1, zoom = 3) #%>%
+                setView(lng = pos[1], lat = pos[2], zoom = 3) #%>%
 #                fitBounds(lng1 = min(hurdat$long), lat1 = min(hurdat$lat),
 #                          lng2 = max(hurdat$long), lat2 = max(hurdat$lat))
         })
