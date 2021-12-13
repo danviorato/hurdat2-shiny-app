@@ -1,6 +1,6 @@
 source("R-scripts/load-data.R")
 
-#Pat: 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
+#Pat: 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
 
 # Define server logic required to draw a histogram
 shinyServer(
@@ -147,8 +147,12 @@ shinyServer(
             hurdat %>%
                 filter(fecha == input$fecha_mapa)%>%
                 mutate(label=paste(sep = "<br/>",
-                                   nombre,
-                                   paste0("Estatus: ", estatus)
+                                   paste0(nombre, " (", clave,")"),
+                                   paste0("<b>Estatus:</b> ", estatus),
+                                   paste0("<b>Time:</b> ", 
+                                          paste0(substr(hora,1,2),":",
+                                                 substr(hora,3,4),":00"),
+                                          paste0("lat = ", lat, " - lng =", long))
                 ))
         })
         
@@ -168,7 +172,7 @@ shinyServer(
                                  color = pal(base_mapa()$max_nudos_viento), 
                                  opacity = 0.8,
                                  fillColor = base_mapa()$color,
-                                 fillOpacity = 1
+                                 fillOpacity = 0.8
                 ) %>%
                 addLegend("topright", pal = pal, values = hurdat$max_nudos_viento,
                           title = "Velocidad en nudos"#, opacity = .5
@@ -178,9 +182,10 @@ shinyServer(
                                           " (",unique(base_mapa()$clave),")"),
                           title = "Velocidad en nudos"
                 ) %>%
-                setView(lng = pos[1], lat = pos[2], zoom = 3) #%>%
-#                fitBounds(lng1 = min(hurdat$long), lat1 = min(hurdat$lat),
-#                          lng2 = max(hurdat$long), lat2 = max(hurdat$lat))
+                addMarkers(lng = c(-110, 63,48,-23.4), lat = c(33, 81, 81,7.2)) %>%
+                #setView(lng = pos[1], lat = pos[2], zoom = 3) #%>%
+                fitBounds(lng1 = min(hurdat$long)+5, lat1 = min(hurdat$lat)+5,
+                          lng2 = max(hurdat$long), lat2 = max(hurdat$lat))
         })
     }
 )
