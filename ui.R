@@ -56,6 +56,15 @@ shinyUI(
                 #        verbatimTextOutput("prueba"),
                 #        tableOutput("prueba2")
                 width = 4,
+                sliderInput(
+                    inputId = "maxvientoSer",
+                    label = "Wind speed range",
+                    min = min(hurdat$max_nudos_viento),
+                    max = max(hurdat$max_nudos_viento),
+                    value = c(min(hurdat$max_nudos_viento),
+                              max(hurdat$max_nudos_viento)),
+                    step = 22
+                ),
                 selectizeInput(
                     inputId = "storm_name",
                     label = "See specific storm(s)",

@@ -14,6 +14,3 @@ estatusn <- paste(estatusc, "-", c("Tropical cyclone of hurricane intensity",
 hurdat <- read_rds("data/hurdat2.rds") %>%
         mutate(estatus = factor(estatus, 
                                 levels = estatusc))
-
-stormid <- paste0(hurdat$nombre[!duplicated(hurdat$clave)], 
-                  " (",hurdat$clave[!duplicated(hurdat$clave)],")")

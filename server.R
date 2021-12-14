@@ -4,7 +4,7 @@ source("R-scripts/load-data.R")
 
 # Define server logic required to draw a histogram
 shinyServer(
-    function(input, output, session) {
+    function(input, output, session){
         #First Graph filters
         output$periodoUI <-renderUI({
             sliderInput(
@@ -78,7 +78,7 @@ shinyServer(
                 ) %>%
                 ggplot(aes(year, fill = estatus)) +
                 geom_histogram(binwidth = 1) +
-                scale_fill_viridis(discrete = T)+
+                scale_fill_viridis(discrete = T) +
                 theme_minimal()
         })
 
@@ -122,15 +122,34 @@ shinyServer(
         
         #leaflet map
         updateSelectizeInput(
-            session, "storm_name", choices = stormid, server = T
+            session, "storm_name", 
+            choices = paste0(hurdat$nombre[!duplicated(hurdat$clave)],
+                             " (",hurdat$clave[!duplicated(hurdat$clave)],")"), 
+            server = T
         )
+        
+        stormid <- reactive({
+            paste0(hurdat$nombre[!duplicated(hurdat$clave)], 
+                   " (",hurdat$clave[!duplicated(hurdat$clave)],")")
+        })
+        
+        base_mapa <- reactive({
+            hurdat %>%
+                filter(fecha == input$fecha_mapa)%>%
+                mutate(label=paste(sep = "<br/>",
+                                   paste0(nombre, " (", clave,")"),
+                                   paste0("<b>Estatus:</b> ", estatus),
+                                   paste0("<b>Time:</b> ", 
+                                          paste0(substr(hora,1,2),":",
+                                                 substr(hora,3,4),":00")),
+                                   paste0("lat = ", lat, " - lng =", long)
+                ))
+        })
         
         observeEvent(
             input$storm_name,{
-                
                 updateSliderTextInput(session,
                     inputId = "fecha_mapa",
-                    
                     selected = if(is.null(input$storm_name)){ 
                         min(hurdat$fecha)}else{
                             min(filter(hurdat,
@@ -143,21 +162,7 @@ shinyServer(
             }, ignoreNULL = F
         )
         
-        base_mapa <- reactive({
-            hurdat %>%
-                filter(fecha == input$fecha_mapa)%>%
-                mutate(label=paste(sep = "<br/>",
-                                   paste0(nombre, " (", clave,")"),
-                                   paste0("<b>Estatus:</b> ", estatus),
-                                   paste0("<b>Time:</b> ", 
-                                          paste0(substr(hora,1,2),":",
-                                                 substr(hora,3,4),":00"),
-                                          paste0("lat = ", lat, " - lng =", long))
-                ))
-        })
-        
         output$mapSer <- renderLeaflet({
-
             pal <- colorNumeric("viridis", hurdat$max_nudos_viento, reverse = T)
             
             pos <- c(mean(filter(hurdat, clave %in% base_mapa()$clave)$long),
@@ -182,7 +187,8 @@ shinyServer(
                                           " (",unique(base_mapa()$clave),")"),
                           title = "Velocidad en nudos"
                 ) %>%
-                addMarkers(lng = c(-110, 63,48,-23.4), lat = c(33, 81, 81,7.2)) %>%
+                #addCircles(lng = c(-110, 63,48,-23.4), lat = c(33, 81, 81,7.2),
+                #           opacity = 0)
                 #setView(lng = pos[1], lat = pos[2], zoom = 3) #%>%
                 fitBounds(lng1 = min(hurdat$long)+5, lat1 = min(hurdat$lat)+5,
                           lng2 = max(hurdat$long), lat2 = max(hurdat$lat))
