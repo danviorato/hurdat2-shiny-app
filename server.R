@@ -128,6 +128,8 @@ shinyServer(
             server = T
         )
         
+        
+        
         stormid <- reactive({
             paste0(hurdat$nombre[!duplicated(hurdat$clave)], 
                    " (",hurdat$clave[!duplicated(hurdat$clave)],")")
@@ -137,12 +139,13 @@ shinyServer(
             hurdat %>%
                 filter(fecha == input$fecha_mapa)%>%
                 mutate(label=paste(sep = "<br/>",
-                                   paste0(nombre, " (", clave,")"),
+                                   paste0("<b>", nombre, " (", clave,")</b>"),
                                    paste0("<b>Estatus:</b> ", estatus),
                                    paste0("<b>Time:</b> ", 
                                           paste0(substr(hora,1,2),":",
                                                  substr(hora,3,4),":00")),
-                                   paste0("lat = ", lat, " - lng =", long)
+                                   paste0("<b>lat =</b> ", 
+                                          lat, " <b>- lng =</b> ", long)
                 ))
         })
         
@@ -153,11 +156,11 @@ shinyServer(
                     selected = if(is.null(input$storm_name)){ 
                         min(hurdat$fecha)}else{
                             min(filter(hurdat,
-                                          clave %in% unique(hurdat$clave)[match(input$storm_name,stormid)])$fecha)},
+                                          clave %in% unique(hurdat$clave)[match(input$storm_name,stormid())])$fecha)},
                     choices = if(is.null(input$storm_name)){ 
                         unique(hurdat$fecha)}else{
                             unique(filter(hurdat,
-                                          clave %in% unique(hurdat$clave)[match(input$storm_name,stormid)])$fecha)}
+                                          clave %in% unique(hurdat$clave)[match(input$storm_name,stormid())])$fecha)}
                 )
             }, ignoreNULL = F
         )
